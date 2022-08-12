@@ -3,6 +3,8 @@ package com.example.controller;
 import java.net.URI;
 import java.util.*;
 
+import javax.validation.Valid;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -18,6 +20,8 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import org.springframework.http.MediaType;
 
 import com.example.model.ProductModel;
+import com.example.model.ProductRequest;
+import com.example.model.ProductResponse;
 import com.example.parameter.ProductQueryParameter;
 import com.example.service.ProductService;
 
@@ -29,21 +33,21 @@ public class ProductController {
     private ProductService productService;
 
     @GetMapping("/{id}")
-    public ResponseEntity<ProductModel> getProduct(@PathVariable("id") String id) {
-        ProductModel product = productService.getProduct(id);
+    public ResponseEntity<ProductResponse> getProduct(@PathVariable("id") String id) {
+        ProductResponse product = productService.getProductResponse(id);
         return ResponseEntity.ok(product);
     }
 
     @GetMapping
-    public ResponseEntity<List<ProductModel>> getProducts(@ModelAttribute ProductQueryParameter param) {
-        List<ProductModel> products = productService.getProducts(param);
+    public ResponseEntity<List<ProductResponse>> getProducts(@ModelAttribute ProductQueryParameter param) {
+        List<ProductResponse> products = productService.getProductResponses(param);
         
         return ResponseEntity.ok(products);
     }
 
     @PostMapping
-    public ResponseEntity<ProductModel> createProduct(@RequestBody ProductModel request) {
-        ProductModel product = productService.createProduct(request);
+    public ResponseEntity<ProductResponse> createProduct(@Valid @RequestBody ProductRequest request) {
+        ProductResponse product = productService.createProduct(request);
 
         URI location = ServletUriComponentsBuilder
                 .fromCurrentRequest()
@@ -56,9 +60,9 @@ public class ProductController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ProductModel> replaceProduct(
-            @PathVariable("id") String id, @RequestBody ProductModel request) {
-        ProductModel product = productService.replaceProduct(id, request);
+    public ResponseEntity<ProductResponse> replaceProduct(
+            @PathVariable("id") String id, @Valid @RequestBody ProductRequest request) {
+        ProductResponse product = productService.replaceProduct(id, request);
         return ResponseEntity.ok(product);
     }
 
