@@ -1,55 +1,78 @@
 package com.example.service;
 
-import com.example.config.MailConfig;
+
 import com.example.model.SendMailRequest;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.mail.MailAuthenticationException;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
-import org.springframework.stereotype.Service;
 
-import javax.annotation.PostConstruct;
-import java.util.Properties;
 
-@Service
+import javax.annotation.PreDestroy;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 public class MailService {
-
-    @Autowired
-    private MailConfig mailConfig;
 
     private final Logger LOGGER = LoggerFactory.getLogger(this.getClass());
 
-    private JavaMailSenderImpl mailSender;
+    private final JavaMailSenderImpl mailSender;
+    private final long tag;
+    private final List<String> mailMessages;
+    private final String LOG_EMAIL;
 
-    @PostConstruct
-    private void init() {
-        mailSender = new JavaMailSenderImpl();
-        mailSender.setHost(mailConfig.getHost());
-        mailSender.setPort(mailConfig.getPort());
-        mailSender.setUsername(mailConfig.getUsername());
-        mailSender.setPassword(mailConfig.getPassword());
-
-        Properties props = mailSender.getJavaMailProperties();
-        props.put("mail.smtp.auth", mailConfig.isAuthEnabled());
-        props.put("mail.smtp.starttls.enable", mailConfig.isStarttlsEnabled());
-        props.put("mail.transport.protocol", mailConfig.getProtocol());
+    public MailService(JavaMailSenderImpl mailSender) {
+        this.mailSender = mailSender;
+        this.tag = System.currentTimeMillis();
+        this.mailMessages = new ArrayList<>();
+        this.LOG_EMAIL = mailSender.getUsername();
     }
 
     public void sendMail(SendMailRequest request) {
+        sendMail(request.getSubject(), request.getContent(), request.getReceivers());
+    }
+
+    public void sendMail(String subject, String content, List<String> receivers) {
         SimpleMailMessage message = new SimpleMailMessage();
-        message.setFrom(mailConfig.getUsername());
-        message.setTo(request.getReceivers());
-        message.setSubject(request.getSubject());
-        message.setText(request.getContent());
-        System.out.print(message.toString());
+        message.setFrom(mailSender.getUsername());
+        message.setTo(receivers.toArray(new String[0]));
+        message.setSubject(subject);
+        message.setText(content);
+
         try {
             mailSender.send(message);
+            mailMessages.add(content);
+            printMessages();
         } catch (MailAuthenticationException e) {
             LOGGER.error(e.getMessage());
         } catch (Exception e) {
             LOGGER.warn(e.getMessage());
         }
+    }
+
+    public void sendNewProductMail(String productId) {
+        String content = String.format("There's a new created product (%s).", productId);
+        sendMail("New Product", content,
+                Collections.singletonList(LOG_EMAIL));
+    }
+
+    public void sendDeleteProductMail(String productId) {
+        String content = String.format("There's a product deleted (%s).", productId);
+        sendMail("Product Deleted", content,
+                Collections.singletonList(LOG_EMAIL));
+    }
+
+    private void printMessages() {
+        System.out.println("----------");
+        mailMessages.forEach(System.out::println);
+    }
+
+    @PreDestroy
+    public void preDestroy() {
+        System.out.println("##########");
+        System.out.printf("Spring Boot is about to destroy Mail Service %d.\n\n", tag);
     }
 }

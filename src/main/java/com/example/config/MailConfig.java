@@ -1,18 +1,23 @@
 package com.example.config;
 
+import java.util.Properties;
+
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.factory.config.ConfigurableBeanFactory;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
+import org.springframework.context.annotation.Scope;
+import org.springframework.mail.javamail.JavaMailSenderImpl;
+
+import com.example.service.MailService;
 
 @Configuration
 @PropertySource("classpath:mail.properties")
 public class MailConfig {
 
-    @Value("${mail.host}")
-    private String host;
-
-    @Value("${mail.port:25}") // 使用「:」符號可以加上預設值
-    private int port;
+    @Value("${mail.platform}")
+    private String platform;
 
     @Value("${mail.auth.enabled}")
     private boolean authEnabled;
@@ -23,38 +28,67 @@ public class MailConfig {
     @Value("${mail.protocol}")
     private String protocol;
 
-    @Value("${mail.username}")
-    private String username;
+    // region Gmail config
+    @Value("${mail.gmail.host}")
+    private String gmailHost;
 
-    @Value("${mail.password}")
-    private String password;
+    @Value("${mail.gmail.port}")
+    private int gmailPort;
 
-    public String getHost() {
-        return host;
+    @Value("${mail.gmail.username}")
+    private String gmailUsername;
+
+    @Value("${mail.gmail.password}")
+    private String gmailPassword;
+    // endregion Gmail
+
+    // region Yahoo Mail config
+    @Value("${mail.yahoo.host}")
+    private String yahooHost;
+
+    @Value("${mail.yahoo.port}")
+    private int yahooPort;
+
+    @Value("${mail.yahoo.username}")
+    private String yahooUsername;
+
+    @Value("${mail.yahoo.password}")
+    private String yahooPassword;
+    // endregion Yahoo Mail
+
+    @Bean
+    @Scope(value = ConfigurableBeanFactory.SCOPE_SINGLETON)
+    public MailService mailService() {
+        JavaMailSenderImpl mailSender = "gmail".equals(platform)
+                ? gmailSender()
+                : yahooSender();
+
+        Properties props = mailSender.getJavaMailProperties();
+        props.put("mail.smtp.auth", authEnabled);
+        props.put("mail.smtp.starttls.enable", starttlsEnabled);
+        props.put("mail.transport.protocol", protocol);
+
+        System.out.println("Mail Service is created.");
+        return new MailService(mailSender);
     }
 
-    public int getPort() {
-        return port;
+    private JavaMailSenderImpl gmailSender() {
+        JavaMailSenderImpl mailSender = new JavaMailSenderImpl();
+        mailSender.setHost(gmailHost);
+        mailSender.setPort(gmailPort);
+        mailSender.setUsername(gmailUsername);
+        mailSender.setPassword(gmailPassword);
+
+        return mailSender;
     }
 
-    public boolean isAuthEnabled() {
-        return authEnabled;
-    }
+    private JavaMailSenderImpl yahooSender() {
+        JavaMailSenderImpl mailSender = new JavaMailSenderImpl();
+        mailSender.setHost(yahooHost);
+        mailSender.setPort(yahooPort);
+        mailSender.setUsername(yahooUsername);
+        mailSender.setPassword(yahooPassword);
 
-    public boolean isStarttlsEnabled() {
-        return starttlsEnabled;
+        return mailSender;
     }
-
-    public String getProtocol() {
-        return protocol;
-    }
-
-    public String getUsername() {
-        return username;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
 }

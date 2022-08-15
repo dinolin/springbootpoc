@@ -18,15 +18,18 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-@Service
+//@Service
 public class ProductService {
 
-    @Autowired
+    private ProductRepository repository;
+    private MailService mailService;
+    
+//   @Autowired
     private ProductRepository productRepository;
-
-//    public ProductService(ProductRepository repository) {
-//        this.productRepository = repository;
-//    }    
+    public ProductService(ProductRepository repository, MailService mailService) {
+        this.repository = repository;
+        this.mailService = mailService;
+    }
     
     
     public ProductModel getProduct(String id) {
@@ -54,6 +57,8 @@ public class ProductService {
         product.setPrice(request.getPrice());
         product = productRepository.insert(product);
 
+        mailService.sendNewProductMail(product.getId());
+        
         return ProductConverter.toProductResponse(product);
     }
     
@@ -80,6 +85,7 @@ public class ProductService {
     
     public void deleteProduct(String id) {
     	productRepository.deleteById(id);
+    	mailService.sendDeleteProductMail(id);
     }
 
 //    public List<ProductModel> getProducts(ProductQueryParameter param) {
