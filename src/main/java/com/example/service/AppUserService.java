@@ -10,13 +10,17 @@ import com.example.model.AppUserModel;
 import com.example.model.AppUserRequest;
 import com.example.model.AppUserResponse;
 import com.example.repository.AppUserRepository;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 public class AppUserService {
 
     private AppUserRepository repository;
+    private BCryptPasswordEncoder passwordEncoder;
+    
 
     public AppUserService(AppUserRepository repository) {
         this.repository = repository;
+        this.passwordEncoder = new BCryptPasswordEncoder();
     }
 
     public AppUserResponse createUser(AppUserRequest request) {
@@ -26,6 +30,7 @@ public class AppUserService {
         }
 
         AppUserModel user = AppUserConverter.toAppUser(request);
+        user.setPassword(passwordEncoder.encode(request.getPassword()));
         user = repository.insert(user);
         return AppUserConverter.toAppUserResponse(user);
     }

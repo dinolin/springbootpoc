@@ -18,10 +18,10 @@ import java.util.stream.Collectors;
 
 @Service
 public class JWTService {
-	   @Autowired
+	    @Autowired
 	    private AuthenticationManager authenticationManager;
 
-	    private final String KEY = "Dino-studio.comSpringBootPocApp";
+	    private final String KEY = "SpringBootDino-studio.comSpringBootPocApp";
 
 	    public String generateToken(AuthRequest request) {
 	        Authentication authentication =

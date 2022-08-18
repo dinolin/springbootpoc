@@ -5,6 +5,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Scope;
 
+import com.example.auth.UserIdentity;
 import com.example.repository.AppUserRepository;
 import com.example.repository.ProductRepository;
 import com.example.service.AppUserService;
@@ -17,9 +18,11 @@ public class ServiceConfig {
     @Bean
     @Scope(value = ConfigurableBeanFactory.SCOPE_SINGLETON)
     public ProductService productService(ProductRepository repository,
-                                         MailService mailService) {
-        return new ProductService(repository, mailService);
+                                         MailService mailService,
+                                         UserIdentity userIdentity) {
+        return new ProductService(repository, mailService, userIdentity);
     }
+    
     @Bean
     @Scope(value = ConfigurableBeanFactory.SCOPE_SINGLETON)
     public AppUserService appuserService(AppUserRepository repository) {

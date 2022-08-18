@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.example.auth.UserIdentity;
 import com.example.converter.ProductConverter;
 import com.example.exception.NotFoundException;
 import com.example.model.ProductModel;
@@ -23,22 +24,23 @@ public class ProductService {
 
     private ProductRepository repository;
     private MailService mailService;
+    private UserIdentity userIdentity;
     
 //   @Autowired
-    private ProductRepository productRepository;
-    public ProductService(ProductRepository repository, MailService mailService) {
-        this.repository = repository;
-        this.mailService = mailService;
+//    private ProductRepository productRepository;
+    public ProductService(ProductRepository repository, MailService mailService, UserIdentity userIdentity) {
+    	this.repository = repository;
+    	this.mailService = mailService;
+    	this.userIdentity = userIdentity;
     }
-    
     
     public ProductModel getProduct(String id) {
-        return productRepository.findById(id)
+        return repository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Can't find product."));
     }
-
+    
     public ProductResponse getProductResponse(String id) {
-        ProductModel product = productRepository.findById(id)
+        ProductModel product = repository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Can't find product."));
         return ProductConverter.toProductResponse(product);
     }
@@ -55,7 +57,7 @@ public class ProductService {
         ProductModel product = new ProductModel();
         product.setName(request.getName());
         product.setPrice(request.getPrice());
-        product = productRepository.insert(product);
+        product = repository.insert(product);
 
         mailService.sendNewProductMail(product.getId());
         
@@ -78,13 +80,13 @@ public class ProductService {
         ProductModel newProduct = ProductConverter.toProduct(request);
         newProduct.setId(oldProduct.getId());
 
-        productRepository.save(newProduct);
+        repository.save(newProduct);
 
         return ProductConverter.toProductResponse(newProduct);
     }
     
     public void deleteProduct(String id) {
-    	productRepository.deleteById(id);
+    	repository.deleteById(id);
     	mailService.sendDeleteProductMail(id);
     }
 
@@ -104,8 +106,8 @@ public class ProductService {
         int priceTo = Optional.ofNullable(param.getPriceTo()).orElse(Integer.MAX_VALUE);
         Sort sort = genSortingStrategy(param.getOrderBy(), param.getSortRule());
 
-        List<ProductModel> products = productRepository.findByPriceBetweenAndNameLikeIgnoreCase(priceFrom, priceTo, nameKeyword, sort);
-
+        List<ProductModel> products = repository.findByPriceBetweenAndNameLikeIgnoreCase(priceFrom, priceTo, nameKeyword, sort);
+        System.out.print(products.toString());
         return products.stream()
                 .map(ProductConverter::toProductResponse)
                 .collect(Collectors.toList());

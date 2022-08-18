@@ -10,6 +10,7 @@ import org.springframework.context.annotation.PropertySource;
 import org.springframework.context.annotation.Scope;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
 
+import com.example.auth.UserIdentity;
 import com.example.service.MailService;
 
 @Configuration
@@ -58,7 +59,7 @@ public class MailConfig {
 
     @Bean
     @Scope(value = ConfigurableBeanFactory.SCOPE_SINGLETON)
-    public MailService mailService() {
+    public MailService mailService(UserIdentity userIdentity) {
         JavaMailSenderImpl mailSender = "gmail".equals(platform)
                 ? gmailSender()
                 : yahooSender();
@@ -68,8 +69,7 @@ public class MailConfig {
         props.put("mail.smtp.starttls.enable", starttlsEnabled);
         props.put("mail.transport.protocol", protocol);
 
-        System.out.println("Mail Service is created.");
-        return new MailService(mailSender);
+        return new MailService(mailSender, userIdentity);
     }
 
     private JavaMailSenderImpl gmailSender() {
