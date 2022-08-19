@@ -8,8 +8,8 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
 
 @SpringBootApplication
-@ComponentScan(basePackages={"com.example.demo","com.example.model","com.example.controller","com.example.service","com.example.repository","com.example.config","com.example.auth"})
-@EntityScan(basePackages={"com.example.demo","com.example.model","com.example.controller","com.example.service","com.example.repository","com.example.config","com.example.auth"})
+@ComponentScan(basePackages={"com.example.demo","com.example.model","com.example.controller","com.example.service","com.example.repository","com.example.config","com.example.auth","com.example.aop"})
+@EntityScan(basePackages={"com.example.demo","com.example.model","com.example.controller","com.example.service","com.example.repository","com.example.config","com.example.auth","com.example.aop"})
 @EnableMongoRepositories ("com.example.repository")
 public class SpringpocApplication  extends SpringBootServletInitializer {
 

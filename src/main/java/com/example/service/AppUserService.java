@@ -3,6 +3,9 @@ package com.example.service;
 import java.util.List;
 import java.util.Optional;
 
+import com.example.aop.ActionType;
+import com.example.aop.EntityType;
+import com.example.aop.SendEmail;
 import com.example.converter.AppUserConverter;
 import com.example.exception.NotFoundException;
 import com.example.exception.UnprocessableEntityException;
@@ -23,6 +26,7 @@ public class AppUserService {
         this.passwordEncoder = new BCryptPasswordEncoder();
     }
 
+    @SendEmail(entity = EntityType.APP_USER, action = ActionType.CREATE)
     public AppUserResponse createUser(AppUserRequest request) {
         Optional<AppUserModel> existingUser = repository.findByEmailAddress(request.getEmailAddress());
         if (existingUser.isPresent()) {

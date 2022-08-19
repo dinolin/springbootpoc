@@ -5,6 +5,9 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.example.aop.ActionType;
+import com.example.aop.EntityType;
+import com.example.aop.SendEmail;
 import com.example.auth.UserIdentity;
 import com.example.converter.ProductConverter;
 import com.example.exception.NotFoundException;
@@ -53,6 +56,7 @@ public class ProductService {
 //        return productRepository.insert(product);
 //    }
 
+    @SendEmail(entity = EntityType.PRODUCT, action = ActionType.CREATE)
     public ProductResponse createProduct(ProductRequest request) {
         ProductModel product = new ProductModel();
         product.setName(request.getName());
@@ -75,6 +79,7 @@ public class ProductService {
 //        return productRepository.save(product);
 //    }
 
+    @SendEmail(entity = EntityType.PRODUCT, action = ActionType.UPDATE, idParamIndex = 0)
     public ProductResponse replaceProduct(String id, ProductRequest request) {
         ProductModel oldProduct = getProduct(id);
         ProductModel newProduct = ProductConverter.toProduct(request);
@@ -85,6 +90,7 @@ public class ProductService {
         return ProductConverter.toProductResponse(newProduct);
     }
     
+    @SendEmail(entity = EntityType.PRODUCT, action = ActionType.DELETE, idParamIndex = 0)
     public void deleteProduct(String id) {
     	repository.deleteById(id);
     	mailService.sendDeleteProductMail(id);

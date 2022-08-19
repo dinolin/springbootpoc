@@ -11,6 +11,8 @@ import org.springframework.web.bind.annotation.RestController;
 import com.example.auth.AuthRequest;
 import com.example.auth.JWTService;
 
+import io.swagger.v3.oas.annotations.Hidden;
+
 import javax.validation.Valid;
 import java.util.Collections;
 import java.util.Map;
@@ -30,6 +32,7 @@ public class AuthController {
         return ResponseEntity.ok(response);
     }
 
+    @Hidden
     @PostMapping("/parse")
     public ResponseEntity<Map<String, Object>> parseToken(@RequestBody Map<String, String> request) {
         String token = request.get("token");

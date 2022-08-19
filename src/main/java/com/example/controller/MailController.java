@@ -11,8 +11,11 @@ import org.springframework.web.bind.annotation.RestController;
 import com.example.model.SendMailRequest;
 import com.example.service.MailService;
 
+import io.swagger.v3.oas.annotations.Hidden;
+
 import javax.validation.Valid;
 
+@Hidden
 @RestController
 @RequestMapping(value = "/mail", produces = MediaType.APPLICATION_JSON_VALUE)
 public class MailController {

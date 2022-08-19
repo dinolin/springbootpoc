@@ -8,7 +8,11 @@ import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
 import com.example.model.AppUserRequest;
 import com.example.model.AppUserResponse;
+import com.example.model.UserAuthorityModel;
 import com.example.service.AppUserService;
+
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 
 import javax.validation.Valid;
 import java.net.URI;
@@ -33,7 +37,9 @@ public class AppUserController {
 
         return ResponseEntity.created(location).body(user);
     }
-
+    @Operation(
+            summary = "Query specific user.",
+            description = "Query specific user info according to user id.")
     @GetMapping("/{id}")
     public ResponseEntity<AppUserResponse> getUser(@PathVariable("id") String id) {
         AppUserResponse user = service.getUserResponseById(id);
@@ -41,7 +47,9 @@ public class AppUserController {
     }
 
     @GetMapping
-    public ResponseEntity<List<AppUserResponse>> getUsers() {
+    public ResponseEntity<List<AppUserResponse>> getUsers(
+    		@Parameter(description = "Define authorities that found user have at least one.", required = false, allowEmptyValue = true)
+    		@RequestParam(name = "authorities", required = false)  List<UserAuthorityModel> authorities) {
         List<AppUserResponse> users = service.getUserResponses();
         return ResponseEntity.ok(users);
     }

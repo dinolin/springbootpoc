@@ -25,6 +25,8 @@ import com.example.model.ProductResponse;
 import com.example.parameter.ProductQueryParameter;
 import com.example.service.ProductService;
 
+import io.swagger.v3.oas.annotations.Parameter;
+
 @RestController
 @RequestMapping(value = "/products", produces = MediaType.APPLICATION_JSON_VALUE)
 public class ProductController {
@@ -33,7 +35,7 @@ public class ProductController {
     private ProductService productService;
 
     @GetMapping("/{id}")
-    public ResponseEntity<ProductResponse> getProduct(@PathVariable("id") String id) {
+    public ResponseEntity<ProductResponse> getProduct(@Parameter(description = "ID of product.") @PathVariable("id") String id) {
         ProductResponse product = productService.getProductResponse(id);
         return ResponseEntity.ok(product);
     }
